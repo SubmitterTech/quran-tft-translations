@@ -1,0 +1,177 @@
+name: Release
+
+# The repository keeps itself up to date. Once a day a bot pulls the translators' work from
+# Transifex and commits it to main. Whatever reaches main, from the bot or from a maintainer,
+# is then checked with the rules the apps apply to what they download. What passes moves the
+# release branch forward and becomes a release. The app repository builds from the tip of
+# that branch, so nothing reaches readers without passing here first.
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      allow:
+        description: Problems to accept on purpose, by the code printed with them, separated by spaces
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  pull:
+    # A push already carries what is to be released. The clock and a manual run pull first.
+    if: ${{ github.event_name != 'push' && github.repository_owner == 'SubmitterTech' }}
+    runs-on: ubuntu-latest
+    # One pull at a time. Each job has its own group, so a push, which only releases, never
+    # takes the place of a pull that is waiting.
+    concurrency:
+      group: pull
+      cancel-in-progress: false
+    # The subject index is sorted with ICU, and another ICU version can sort it differently.
+    # Debian trixie ships ICU 76, the version the files have been written with so far.
+    container: python:3.13-trixie
+    defaults:
+      run:
+        shell: bash
+    env:
+      TRANSIFEX_API_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
+      ALLOW: ${{ inputs.allow }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      # The pull checks what it wrote against the structure of the English text, which
+      # belongs to the app repository.
+      - name: Check out the English base files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: SubmitterTech/quran-tft
+          path: .english
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            app/src/assets/qurantft.json
+            app/src/assets/appendices.json
+            app/src/assets/introduction.json
+            app/src/assets/application.json
+            app/src/assets/cover.json
+
+      - name: Install what the pull needs
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends libicu-dev pkg-config nodejs
+          pip install --no-cache-dir -r scrapper/requirements.txt
+
+      - name: Pull from Transifex and commit
+        run: |
+          if [ -z "$TRANSIFEX_API_TOKEN" ]; then
+            echo "TRANSIFEX_API_TOKEN is not set, so nothing was pulled." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "transifex-translation-updater-bot"
+          git config user.email "submittertech@gmail.com"
+          export ENGLISH_BASE_DIR="$GITHUB_WORKSPACE/.english/app/src/assets"
+          allow=()
+          for code in $ALLOW; do allow+=(--allow "$code"); done
+          python scrapper/translation-work/pull_translations.py --assume-yes --verbosity quiet "${allow[@]}"
+          git push origin HEAD:main
+
+  release:
+    needs: pull
+    if: ${{ !cancelled() && github.repository_owner == 'SubmitterTech' && (needs.pull.result == 'success' || needs.pull.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    # One release at a time. A release always takes the tip of main, so a later one that
+    # replaces a waiting one loses nothing.
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - name: Check out main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check out the English base files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: SubmitterTech/quran-tft
+          path: .english
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            app/src/assets/qurantft.json
+            app/src/assets/appendices.json
+            app/src/assets/introduction.json
+            app/src/assets/application.json
+            app/src/assets/cover.json
+
+      # Compared with the last release, so the result lists what readers will receive. The
+      # release itself is created as the last step of a run, so a run that stopped half way
+      # still sees its changes as unpublished when it is run again.
+      - name: Validate
+        id: validate
+        env:
+          ALLOW: ${{ inputs.allow }}
+        run: |
+          base=$(git describe --tags --abbrev=0 --match 'v*' HEAD 2>/dev/null || echo no-release-yet)
+          allow=()
+          for code in $ALLOW; do allow+=(--allow "$code"); done
+          node scrapper/translation-work/validate.mjs \
+            --base "$base" \
+            --english .english/app/src/assets \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --result "$RUNNER_TEMP/validation.json" \
+            "${allow[@]}"
+          node -e '
+            const result = require(process.argv[1]);
+            const files = [
+              ...result.changed,
+              ...result.added.map((name) => `${name} (new)`),
+              ...result.removed.map((name) => `${name} (removed)`),
+            ];
+            const published = files.length > 0;
+            const notes = result.compared
+              ? `Files that changed in this release:\n\n${files.map((name) => `- \`${name}\``).join("\n")}\n`
+              : "First release.\n";
+            require("fs").writeFileSync(process.argv[2], notes);
+            require("fs").appendFileSync(process.env.GITHUB_OUTPUT, `published=${published}\n`);
+          ' "$RUNNER_TEMP/validation.json" "$RUNNER_TEMP/notes.md"
+
+      - name: Move the release branch
+        run: git push origin "HEAD:refs/heads/release"
+
+      # The sites publish the text from the release branch, so they are rebuilt when a
+      # published file changed. Without the two secrets this step does nothing.
+      - name: Rebuild the sites
+        if: steps.validate.outputs.published == 'true'
+        env:
+          QURANTFT_DEPLOY_HOOK: ${{ secrets.QURANTFT_DEPLOY_HOOK }}
+          SONAHIT_DEPLOY_HOOK: ${{ secrets.SONAHIT_DEPLOY_HOOK }}
+        run: |
+          for hook in "$QURANTFT_DEPLOY_HOOK" "$SONAHIT_DEPLOY_HOOK"; do
+            if [ -n "$hook" ]; then
+              curl --fail --silent --show-error --request POST "$hook" > /dev/null
+            fi
+          done
+
+      # A release names each state of the published text. A build can be traced back to it,
+      # and people who use the translations hear about the change through it. It comes last:
+      # its tag is what the next run compares with.
+      - name: Publish the release
+        if: steps.validate.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # The attempt is part of the name: a rerun that has something new to publish must
+          # not meet a release of the same name from the attempt before it.
+          tag="v$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+          gh release create "$tag" --target "$(git rev-parse HEAD)" --title "$tag" --notes-file "$RUNNER_TEMP/notes.md"
