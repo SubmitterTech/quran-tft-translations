@@ -77,6 +77,10 @@ parser.add_argument('--poll-timeout', type=float, default=300.0, metavar='SECOND
                     help='Maximum seconds to wait for a Transifex async download. Default: 300')
 parser.add_argument('--download-timeout', type=float, default=120.0, metavar='SECONDS',
                     help='Read timeout in seconds for the final file download. Default: 120')
+parser.add_argument('--api-timeout', type=float, default=60.0, metavar='SECONDS',
+                    help='Read timeout in seconds for every other Transifex API request. Default: 60')
+parser.add_argument('--attempts', type=int, default=3, metavar='COUNT',
+                    help='How many times a Transifex request is tried before the run gives up. Default: 3')
 parser.add_argument('--translation-mode', default='default', metavar='MODE',
                     help=(
                         'Transifex translation download mode. Use "onlytranslated" to include '
@@ -199,6 +203,33 @@ assert api_token, (
 # Initialize the Transifex API with the credentials
 transifex_api.setup(auth=api_token)
 
+# The SDK sends its requests without a timeout, and a request without one waits for as long
+# as the other side stays silent. Every call it makes goes through this one method, so the
+# timeout is given here.
+_sdk_request = transifex_api.request
+
+
+def request_with_timeout(*request_args, **request_kwargs):
+    request_kwargs.setdefault('timeout', (10, args.api_timeout))
+    return _sdk_request(*request_args, **request_kwargs)
+
+
+transifex_api.request = request_with_timeout
+
+
+def with_retries(label, action):
+    """Run one Transifex step, again after a pause if it fails. The last failure is raised."""
+    for attempt in range(1, max(1, args.attempts) + 1):
+        try:
+            return action()
+        except Exception as exc:
+            if attempt >= args.attempts:
+                raise
+            pause = 15 * attempt
+            print(f"[{label}] attempt {attempt} failed ({exc}); trying again in {pause}s")
+            time.sleep(pause)
+
+
 # Define the project and resource details
 organization_slug = args.organization
 project_slug = args.project
@@ -285,8 +316,8 @@ if args.lang:
     language_codes = args.lang
 
 # Fetch organization and project
-organization = transifex_api.Organization.get(slug=organization_slug)
-project = organization.fetch('projects').get(slug=project_slug)
+organization = with_retries('organization', lambda: transifex_api.Organization.get(slug=organization_slug))
+project = with_retries('project', lambda: organization.fetch('projects').get(slug=project_slug))
 
 # Base path for saving translations. Git runs in the repository root, not where the script was
 # started from, so a relative --output-dir is pinned down here.
@@ -676,22 +707,25 @@ for language_code in language_codes:
         continue
 
     # Fetch the language object
-    language = transifex_api.Language.get(code=language_code)
+    language = with_retries(language_code, lambda: transifex_api.Language.get(code=language_code))
 
     # Initialize a flag to check if any files were saved for this language
     files_saved = False
 
     for resource_slug in selected_resources:
+        step = f"{language_code}/{resource_slug}"
+
         # Fetch the resource
-        resource = project.fetch('resources').get(slug=resource_slug)
+        resource = with_retries(step, lambda: project.fetch('resources').get(slug=resource_slug))
 
         # Start the async export, poll until it is ready, and then download the file.
-        response_text = download_translation_payload(
+        # A retry starts a new export: one that failed or never finished is not waited on again.
+        response_text = with_retries(step, lambda: download_translation_payload(
             resource=resource,
             language=language,
             language_code=language_code,
             resource_slug=resource_slug
-        )
+        ))
 
         # Define the output file path (under base_path)
         lang_dir = os.path.join(base_path, language_code)
@@ -783,8 +817,11 @@ if not args.skip_completeness and not args.dry_run:
     with open(languages_json_path, 'r', encoding='utf-8') as f:
         languages_data = json.load(f)
 
-    # Fetch project language stats
-    project_stats = transifex_api.ResourceLanguageStats.filter(project=project)
+    # Fetch project language stats. The list is read in full here: it arrives page by page,
+    # and each page is a request of its own.
+    project_stats = with_retries(
+        'completeness', lambda: list(transifex_api.ResourceLanguageStats.filter(project=project))
+    )
 
     # Calculate completeness percentage per language
     completeness_percentages = {}

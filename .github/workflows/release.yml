@@ -26,6 +26,10 @@ jobs:
     # A push already carries what is to be released. The clock and a manual run pull first.
     if: ${{ github.event_name != 'push' && github.repository_owner == 'SubmitterTech' }}
     runs-on: ubuntu-latest
+    # A pull takes about ten minutes. Transifex can be slow, and the script retries, but a
+    # run that is still going after this long is stuck: it is stopped, and the next one
+    # starts from scratch.
+    timeout-minutes: 45
     # One pull at a time. Each job has its own group, so a push, which only releases, never
     # takes the place of a pull that is waiting.
     concurrency:
@@ -87,6 +91,7 @@ jobs:
     needs: pull
     if: ${{ !cancelled() && github.repository_owner == 'SubmitterTech' && (needs.pull.result == 'success' || needs.pull.result == 'skipped') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     # One release at a time. A release always takes the tip of main, so a later one that
     # replaces a waiting one loses nothing.
     concurrency:
@@ -159,7 +164,7 @@ jobs:
         run: |
           for hook in "$QURANTFT_DEPLOY_HOOK" "$SONAHIT_DEPLOY_HOOK"; do
             if [ -n "$hook" ]; then
-              curl --fail --silent --show-error --request POST "$hook" > /dev/null
+              curl --fail --silent --show-error --max-time 30 --retry 2 --request POST "$hook" > /dev/null
             fi
           done
 
