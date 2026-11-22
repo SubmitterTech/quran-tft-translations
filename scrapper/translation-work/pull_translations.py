@@ -817,8 +817,8 @@ if not args.skip_completeness and not args.dry_run:
     with open(languages_json_path, 'r', encoding='utf-8') as f:
         languages_data = json.load(f)
 
-    # Fetch project language stats. The list is read in full here: it arrives page by page,
-    # and each page is a request of its own.
+    # Fetch project language stats: the first page of them, as before. Read into a list here
+    # so that the request is made inside the retry and not later, by the loop below.
     project_stats = with_retries(
         'completeness', lambda: list(transifex_api.ResourceLanguageStats.filter(project=project))
     )

@@ -26,10 +26,10 @@ jobs:
     # A push already carries what is to be released. The clock and a manual run pull first.
     if: ${{ github.event_name != 'push' && github.repository_owner == 'SubmitterTech' }}
     runs-on: ubuntu-latest
-    # A pull takes about ten minutes. Transifex can be slow, and the script retries, but a
-    # run that is still going after this long is stuck: it is stopped, and the next one
-    # starts from scratch.
-    timeout-minutes: 45
+    # A pull takes about ten minutes, and the script has limits of its own for every request
+    # it makes. This one is only the backstop for what they cannot catch, set well above a
+    # slow day at Transifex so that a slow pull still lands.
+    timeout-minutes: 90
     # One pull at a time. Each job has its own group, so a push, which only releases, never
     # takes the place of a pull that is waiting.
     concurrency:
@@ -84,7 +84,8 @@ jobs:
           export ENGLISH_BASE_DIR="$GITHUB_WORKSPACE/.english/app/src/assets"
           allow=()
           for code in $ALLOW; do allow+=(--allow "$code"); done
-          python scrapper/translation-work/pull_translations.py --assume-yes --verbosity quiet "${allow[@]}"
+          # Unbuffered, so that a run stopped half way still shows how far it got.
+          python -u scrapper/translation-work/pull_translations.py --assume-yes --verbosity quiet "${allow[@]}"
           git push origin HEAD:main
 
   release:
