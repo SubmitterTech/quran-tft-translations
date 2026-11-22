@@ -7,12 +7,10 @@ name: Release
 # that branch, so nothing reaches readers without passing here first.
 #
 # The six hours are kept by a clock outside GitHub, the Worker in clock/, which starts this
-# workflow as a manual run would. GitHub's own schedule may start a run late or not at all;
-# it stays below as a second clock, and a run started twice finds nothing new the second time.
+# workflow as a manual run would. GitHub's own schedule is not used: it may start a run late
+# or not at all, and for this repository it never started one.
 
 on:
-  schedule:
-    - cron: '19 */6 * * *'
   push:
     branches: [main]
   workflow_dispatch:
