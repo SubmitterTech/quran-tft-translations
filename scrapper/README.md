@@ -3,6 +3,15 @@
 What keeps the translations in this repository. The bot in `.github/workflows/release.yml`
 runs them every six hours; this is how to run them by hand.
 
+The six hours are kept outside GitHub, whose own scheduler may start a run late or not at
+all. A small Cloudflare Worker, [`clock/`](../clock), starts the workflow at 00:19, 06:19,
+12:19 and 18:19 UTC, signed in as the GitHub App `quran-tft-translations-clock`. The app
+has one permission, Actions on this repository: it can start, stop and enable workflow
+runs and remove their logs, and it cannot change the files, the releases or the secrets.
+Its private key is the Worker's secret `GITHUB_APP_PRIVATE_KEY`. A workflow that was
+disabled by hand is left alone by the clock. After a change to the clock, deploy it from
+`clock/` with `npx wrangler deploy`; the secret stays as it is.
+
 This repository is usually checked out inside the app repository, at
 `app/src/assets/translations`. A submodule sits on a commit, not on a branch, so before
 pulling:

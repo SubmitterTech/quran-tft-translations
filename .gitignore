@@ -2,8 +2,12 @@
 __pycache__/
 *.pyc
 *.key
+*.pem
 transifex-api-key
 graphify-out/
 scrapper/map-work/out/
 # The English base files, checked out next to the translations while they are compared.
 .english/
+# Left behind by the tools that deploy and test the clock.
+.wrangler/
+.dev.vars*
