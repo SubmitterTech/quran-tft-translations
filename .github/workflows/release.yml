@@ -1,14 +1,14 @@
 name: Release
 
-# The repository keeps itself up to date. Once a day a bot pulls the translators' work from
-# Transifex and commits it to main. Whatever reaches main, from the bot or from a maintainer,
+# The repository keeps itself up to date. Every six hours a bot pulls the translators' work
+# from Transifex and commits it to main. Whatever reaches main, from the bot or from a maintainer,
 # is then checked with the rules the apps apply to what they download. What passes moves the
 # release branch forward and becomes a release. The app repository builds from the tip of
 # that branch, so nothing reaches readers without passing here first.
 
 on:
   schedule:
-    - cron: '17 2 * * *'
+    - cron: '19 */6 * * *'
   push:
     branches: [main]
   workflow_dispatch:

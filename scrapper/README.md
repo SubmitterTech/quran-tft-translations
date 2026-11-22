@@ -1,7 +1,7 @@
 # Tools
 
 What keeps the translations in this repository. The bot in `.github/workflows/release.yml`
-runs them once a day; this is how to run them by hand.
+runs them every six hours; this is how to run them by hand.
 
 This repository is usually checked out inside the app repository, at
 `app/src/assets/translations`. A submodule sits on a commit, not on a branch, so before
