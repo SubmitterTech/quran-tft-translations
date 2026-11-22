@@ -1,0 +1,5 @@
+# What translation-work/pull_translations.py and map-work/prepare_map_update.py need.
+# PyICU also needs the ICU libraries themselves; on macOS: brew install icu4c@76
+transifex-python==3.7.0
+requests==2.34.2
+PyICU==2.14

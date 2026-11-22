@@ -1,0 +1,32 @@
+{
+    "tr": {
+        "name": "Turkish"
+    },
+    "fr": {
+        "name": "French",
+        "exclude_resources": ["coverjson", "introductionjson", "quranjson", "applicationjson", "appendicesjson"]
+    },
+    "de": {
+        "name": "German"
+    },
+    "fa": {
+        "name": "Persian"
+    },
+    "sv": {
+        "name": "Swedish"
+    },
+    "ru": {
+        "name": "Russian",
+        "exclude_resources": ["coverjson", "introductionjson", "quranjson", "applicationjson", "appendicesjson", "mapjson"]
+    },
+    "az": {
+        "name": "Azerbaijani"
+    },
+    "nl": {
+        "name": "Dutch",
+        "exclude_resources": ["coverjson", "introductionjson", "quranjson", "applicationjson", "appendicesjson", "mapjson"]
+    },
+    "ta": {
+        "name": "Tamil"
+    }
+}
