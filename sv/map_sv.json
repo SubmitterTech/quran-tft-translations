@@ -452,7 +452,9 @@
     },
     "C": {
         "Chans, att återlösa": {
-            "bortkastad god": "46:20"
+            "bortkastad god": "46:20",
+            "i detta liv": "14:10; 35:37; 43:29",
+            "ingen efter detta liv": "2:167; 6:27-28; 17:69; 26:102; 32:29; 35:37; 39:58; 42:44; 46:20"
         },
         "Chock": "69:4; 101:1-3"
     },
@@ -637,6 +639,13 @@
         "Dyrkare": "2:207; 3:115; 4:118; 9:104, 112; 15:40; 17:96; 18:28; 21:73, 84, 105-106; 25:63; 38:83; 70:22",
         "Dålig": {
             "bedömning": "29:4"
+        },
+        "Dåligt": {
+            "ber om det som kommer att skada dem": "17:11",
+            "imponerad av överflödet av": "5:100",
+            "konsekvenser av egna gärningar": "4:79; 42:30",
+            "separera från gott": "8:37",
+            "skilja gott från": "3:179"
         },
         "Dårar": "2:13, 130, 142; 7:155; 39:64; 72:4",
         "Död": {
@@ -1320,11 +1329,11 @@
             "bemöta ondska med": "13:22; 23:96; 28:54",
             "bärare av goda nyheter": "2:119, 213; 3:39, 45, 126, 170-171; 11:2; 17:105; 18:2, 56; 19:97; 22:34, 37; 25:56; 27:2; 33:45, 47; 34:28; 35:24; 36:11; 37:101, 112; 39:17; 41:4, 30; 42:23; 46:12; 48:8; 51:28; 57:12; 61:6, 13; 77:6",
             "exempel": "60:6",
-            "från Gud, ont från er": "4:79",
+            "från Gud, dåligt från er": "4:79",
             "gilla det som är dåligt/ogilla det som är gott": "2:216; 4:19",
             "gott händer er, hycklare blir sårade": "9:50",
             "gott kontra dåligt svar": "41:34",
-            "skilja ont från": "3:179",
+            "skilja dåligt från": "3:179",
             "vägledd för egen": "27:92"
         },
         "Granatäpple": "6:99, 141; 55:68",
@@ -1369,7 +1378,7 @@
             "gärningar": "27:46, 89",
             "om gott förnekare tror att de skulle veta först": "46:11",
             "rättfärdiga gärningar för ens eget": "29:6; 41:46; 45:15",
-            "separera ont från": "8:37",
+            "separera dåligt från": "8:37",
             "tror att de ber om något gott": "17:11",
             "tror att gärningar är goda när de är dåliga": "18:104"
         },
@@ -1400,7 +1409,7 @@
             "en god belönas med tio": "6:160",
             "för ens eget bästa": "45:15",
             "förskönade": "6:43, 108, 122; 8:48; 9:37; 10:12; 16:63; 27:4, 24; 29:38; 35:8; 40:37; 41:25; 47:14",
-            "goda gärningar utplånar dåliga": "11:114; 33:71; 39:35",
+            "goda gärningar utplånar dåligt": "11:114; 33:71; 39:35",
             "Gud förstörde": "47:10",
             "Gud medveten om": "2:215; 9:94, 120; 11:111; 35:8, 10; 47:4, 30, 35; 53:40",
             "går aldrig förlorade": "21:94; 49:14",
@@ -2555,7 +2564,7 @@
             "misstag": "17:73-75; 33:37; 66:1; 80:1-10; 93:7",
             "människa": "39:30",
             "och blind man": "80:1",
-            "och slag": "3:121-128, 159; 8:64-70",
+            "och strider": "3:121-128, 159; 8:64-70",
             "och Zeids hustru": "33:37",
             "och ändringen av Qiblah": "2:144",
             "sista profeten": "33:40",
@@ -2631,10 +2640,6 @@
             "Moses mor": "20:38, 40, 94; 28:7-13",
             "till föräldralösa": "4:3",
             "vid skilsmässa": "2:233"
-        },
-        "Möjlighet, att återlösa": {
-            "i detta liv": "14:10; 35:37; 43:29",
-            "ingen efter detta liv": "2:167; 6:27-28; 17:69; 26:102; 32:29; 35:37; 39:58; 42:44; 46:20"
         },
         "Mörker": {
             "av förnekelse": "2:17-20, 257; 3:106; 5:16; 6:122; 13:16; 14:1, 5; 16:58; 24:40; 35:20; 43:17; 57:9; 65:11",
@@ -2788,12 +2793,7 @@
         },
         "Ont": {
             "bemöt med godhet": "23:96; 28:54; 41:34",
-            "ber om det som kommer att skada dem": "17:11",
-            "definierat": "2:102, 114, 140, 219; 5:60, 62, 81; 6:21, 93, 144, 157; 7:37, 162; 9:9, 67; 10:17; 11:18; 17:32; 18:15, 57; 29:68; 32:22; 39:32; 61:7; 63:2",
-            "imponerad av överflödet av": "5:100",
-            "konsekvenser av egna gärningar": "4:79; 42:30",
-            "separera från gott": "8:37",
-            "skilja gott från": "3:179"
+            "definierat": "2:102, 114, 140, 219; 5:60, 62, 81; 6:21, 93, 144, 157; 7:37, 162; 9:9, 67; 10:17; 11:18; 17:32; 18:15, 57; 29:68; 32:22; 39:32; 61:7; 63:2"
         },
         "Opartisk": "2:143",
         "Ord": {
@@ -3372,6 +3372,7 @@
         "Skattmästare": "12:55",
         "Skavank": "2:71; 20:22; 27:12; 28:32",
         "Skicklighet": {
+            "magi": "74:24",
             "människan tillskriver sig själv äran": "39:49"
         },
         "Skidor": "6:99; 41:47; 55:11",
@@ -3440,11 +3441,6 @@
         "Sköld": "2:88; 4:155; 6:110; 15:12-15; 34:11; 83:14",
         "Sköldar": "6:25; 17:46; 18:57; 21:80; 59:14",
         "Skörd": "2:264; 3:117; 6:141; 12:47; 18:33; 42:20; 50:9; 54:31; 68:17, 25",
-        "Slag": {
-            "om Parterna": "33:9-22",
-            "vid Badr": "3:121-124",
-            "vid Uhud": "3:152-156"
-        },
         "Slag, endast ett behövs": "36:29, 49, 53; 38:15",
         "Slaktande": "2:49; 7:77; 11:65; 14:6; 26:157; 28:4; 54:29; 91:14",
         "Slavar": {
@@ -3455,9 +3451,6 @@
         },
         "Slipad": "75:7",
         "Slott": "4:78",
-        "Slughet": {
-            "magi": "74:24"
-        },
         "Slummer": "2:255; 3:154; 8:11",
         "Sluttning": "28:29, 44, 46",
         "Släkt": "2:178",
@@ -3588,7 +3581,10 @@
         },
         "Strid, för Guds sak": "4:94",
         "Strider": {
-            "vid Hunayn": "9:25"
+            "om Parterna": "33:9-22",
+            "vid Badr": "3:121-124",
+            "vid Hunayn": "9:25",
+            "vid Uhud": "3:152-156"
         },
         "Strukturer": "40:64, 82",
         "Sträng": "5:54; 9:73, 123; 48:29; 66:6, 9",
